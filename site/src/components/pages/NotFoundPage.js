@@ -5,7 +5,7 @@ import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 
 const NotFoundPage = () => {
-  const { trackPageView } = this.props.matomo
+  const { trackPageView } = useMatomo()
   trackPageView();
   return (
     <div>

@@ -1,5 +1,6 @@
 package org.identifiers.satellite.frontend.satellitewebspa.services;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.identifiers.cloud.libapi.models.resolver.ResponseResolvePayload;
 import org.identifiers.cloud.libapi.models.ServiceResponse;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -28,6 +30,7 @@ public class AsyncMatomoCidResolutionService {
     @Autowired
     MatomoTracker idorgMatomoTracker;
 
+    @Data
     private class MatomoRequestImportantInfo {
         public String url, xforwarded_for, remote_addr, ua, lang, refe;
         public List<ResolvedResource> resolvedResources;
@@ -35,7 +38,7 @@ public class AsyncMatomoCidResolutionService {
         public boolean wasResolutionSuccessfull;
 
         MatomoRequestImportantInfo(final HttpServletRequest request, final ServiceResponse<ResponseResolvePayload> result) {
-            url = request.getRequestURL().toString();
+            url = request.getRequestURL().toString().replaceFirst("/resolutionApi/", "");
             xforwarded_for = request.getHeader("X-FORWARDED-FOR");
             remote_addr = request.getRemoteAddr();
             ua = request.getHeader("user-agent");
@@ -63,6 +66,7 @@ public class AsyncMatomoCidResolutionService {
 
     @Async("matomoThreadPoolTaskExecutor")
     private void doHandleCidResolution(MatomoRequestImportantInfo info) {
+        log.debug("Info: {}", info);
         MatomoRequestBuilder mreq = MatomoRequest.builder().siteId(1);
 
         mreq.actionUrl(info.url);
@@ -91,6 +95,11 @@ public class AsyncMatomoCidResolutionService {
             String remoteIP = info.xforwarded_for;
             if (remoteIP == null || remoteIP.isEmpty()) {
                 remoteIP = info.remote_addr;
+            } else { // Make sure to only take client Ip from forwarded for header and discard proxies
+                int firstCommaIdx = remoteIP.indexOf(",");
+                if (firstCommaIdx != -1) {
+                    remoteIP = StringUtils.trimWhitespace(remoteIP.substring(0, firstCommaIdx));
+                }
             }
             mreq.visitorIp(remoteIP);
         } else {

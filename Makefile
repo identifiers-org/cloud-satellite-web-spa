@@ -50,16 +50,10 @@ development_env_down: development_env_backend_down
 development_env_backend_up:
 	@echo "<===|DEVOPS|===> [ENVIRONMENT] Bringing backend UP"
 	@docker-compose -f $(docker_compose_development_file) up -d
-	@# TODO Clean this way of referencing the target name in future iterations
-	@rm -f development_env_backend_down
-	@touch development_env_backend_up
 
 development_env_backend_down:
 	@echo "<===|DEVOPS|===> [ENVIRONMENT] Bringing backend DOWN"
 	@docker-compose -f $(docker_compose_development_file) down
-	@# TODO Clean this way of referencing the target name in future iterations
-	@rm -f development_env_backend_up
-	@touch development_env_backend_down
 
 development_run_tests: development_env_up
 	@echo "<===|DEVOPS|===> [TESTS] Running Unit Tests"

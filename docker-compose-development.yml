@@ -48,15 +48,15 @@ services:
         depends_on:
             - redis
             - postgresql
-    hqwebspa:
-        container_name: hq-frontend
-        image: identifiersorg/cloud-hq-web-frontend:latest
-        environment:
-            - ENVCONFIG_HQ_WEB_REGISTRY_CONFIG_API_REGISTRY_URL=http://localhost:8180
-        ports:
-            - "9092:80"
-        networks:
-            - satwebspanet
+#    hqwebspa:
+#        container_name: hq-frontend
+#        image: identifiersorg/cloud-hq-web-frontend:latest
+#        environment:
+#            - ENVCONFIG_HQ_WEB_REGISTRY_CONFIG_API_REGISTRY_URL=http://localhost:8180
+#        ports:
+#            - "9092:80"
+#        networks:
+#            - satwebspanet
     resolver:
         container_name: resolver
         image: identifiersorg/cloud-ws-resolver
@@ -108,18 +108,18 @@ services:
             - "6379:6379"
         networks:
             - satwebspanet
-    satspa:
-        container_name: devops_spa
-        image: identifiersorg/cloud-satellite-web-spa
-        ports:
-            - "9090:9090"
-        networks:
-            - satwebspanet
-        depends_on:
-            - link-checker
-            - recommender
-            - resolver
-            - hqwebspa
+#    satspa:
+#        container_name: devops_spa
+#        image: identifiersorg/cloud-satellite-web-spa
+#        ports:
+#            - "9090:9090"
+#        networks:
+#            - satwebspanet
+#        depends_on:
+#            - link-checker
+#            - recommender
+#            - resolver
+#            - hqwebspa
 networks:
     satwebspanet:
         name: satwebspanet
