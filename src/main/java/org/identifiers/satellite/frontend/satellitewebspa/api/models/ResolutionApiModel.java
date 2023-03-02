@@ -4,11 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.identifiers.cloud.libapi.models.resolver.ResolvedResource;
 import org.identifiers.cloud.libapi.models.resolver.ServiceResponseResolve;
 import org.identifiers.cloud.libapi.services.ApiServicesFactory;
+import org.identifiers.satellite.frontend.satellitewebspa.api.exceptions.FailedResolutionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,58 +29,39 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class ResolutionApiModel {
-//    // TODO specifying HTTP or HTTPs is not supported by the libapi yet
-//    @Value("${org.identifiers.satellite.frontend.satellitewebspa.config.ws.resolver.schema}")
-//    private String resolverSchema;
-
-    public ResponseEntity<?> resolveRawCompactIdentifier(ServiceResponseResolve responseResolve) {
+    public RedirectView resolveRawCompactIdentifier(ServiceResponseResolve responseResolve) {
         if (responseResolve.getHttpStatus().is2xxSuccessful()) {
-            // If the namespace is deprecated, we perform the resolution as always, because all its resources should be
-            // deprecated, thus, redirecting to any of them will report the situation to the user
-            // If the namespace is not deprecated, we should exclude deprecated resources from the redirection choices.
-            // Choose the highest ranking resource
-            try {
-                // Return redirect
-                HttpHeaders headers = new HttpHeaders();
-                if (!responseResolve.getPayload().getResolvedResources().isEmpty()) {
-                    // We have resources
-                    if (responseResolve.getPayload().getParsedCompactIdentifier().isDeprecatedNamespace()) {
-                        // The namespace is deprecated, we just choose among its resources, just in case they're all not deprecated, we sort them
-                        responseResolve.getPayload().getResolvedResources().sort((o1, o2) -> Integer.compare(o2.getRecommendation().getRecommendationIndex(), o1.getRecommendation().getRecommendationIndex()));
-                        headers.setLocation(new URI(responseResolve.getPayload().getResolvedResources().get(0).getCompactIdentifierResolvedUrl()));
+            String location;
+            if (!responseResolve.getPayload().getResolvedResources().isEmpty()) {
+                // We have resources
+                if (responseResolve.getPayload().getParsedCompactIdentifier().isDeprecatedNamespace()) {
+                    // The namespace is deprecated, we just choose among its resources, just in case they're all not deprecated, we sort them
+                    responseResolve.getPayload().getResolvedResources().sort((o1, o2) -> Integer.compare(o2.getRecommendation().getRecommendationIndex(), o1.getRecommendation().getRecommendationIndex()));
+                    location = responseResolve.getPayload().getResolvedResources().get(0).getCompactIdentifierResolvedUrl();
+                    log.info("Resolving to {}", location);
+                } else {
+                    // The namespace is ACTIVE, so we filter out the deprecated resources
+                    List<ResolvedResource> activeResolvedResources =
+                            responseResolve.getPayload().getResolvedResources().stream().filter(resolvedResource -> !resolvedResource.isDeprecatedResource()).collect(Collectors.toList());
+                    if (!activeResolvedResources.isEmpty()) {
+                        // We sort them and choose the highest ranking one
+                        activeResolvedResources.sort((o1, o2) -> Integer.compare(o2.getRecommendation().getRecommendationIndex(), o1.getRecommendation().getRecommendationIndex()));
+                        location = activeResolvedResources.get(0).getCompactIdentifierResolvedUrl();
+                        log.info("Resolving to {}", location);
                     } else {
-                        // The namespace is ACTIVE, so we filter out the deprecated resources
-                        List<ResolvedResource> activeResolvedResources =
-                                responseResolve.getPayload().getResolvedResources().stream().filter(resolvedResource -> !resolvedResource.isDeprecatedResource()).collect(Collectors.toList());
-                        if (!activeResolvedResources.isEmpty()) {
-                            // We sort them and choose the highest ranking one
-                            activeResolvedResources.sort((o1, o2) -> Integer.compare(o2.getRecommendation().getRecommendationIndex(), o1.getRecommendation().getRecommendationIndex()));
-                            headers.setLocation(new URI(activeResolvedResources.get(0).getCompactIdentifierResolvedUrl()));
-                        } else {
-                            String errorMessage = String.format("Namespace '%s' is ACTIVE but ALL ITS RESOURCES ARE " +
-                                    "DEPRECATED",
-                                    responseResolve.getPayload().getParsedCompactIdentifier().getNamespace());
-                            log.error(errorMessage);
-                            return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
-                        }
+                        String errorMessage = String.format("Namespace '%s' is ACTIVE but ALL ITS RESOURCES ARE " +
+                                "DEPRECATED",
+                                responseResolve.getPayload().getParsedCompactIdentifier().getNamespace());
+                        log.error(errorMessage);
+                        throw new FailedResolutionException(errorMessage);
                     }
-                    return new ResponseEntity<>("", headers, HttpStatus.FOUND);
                 }
-                return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
-            } catch (URISyntaxException e) {
-                String errorMessage = String.format("Compact Identifiers resolved to provider with internal ID " +
-                                "'%d', " +
-                                "description '%s', " +
-                                "institution '%s', " +
-                                "with an INVALID RESOLVED URL '%s'",
-                        responseResolve.getPayload().getResolvedResources().get(0).getId(),
-                        responseResolve.getPayload().getResolvedResources().get(0).getDescription(),
-                        responseResolve.getPayload().getResolvedResources().get(0).getInstitution(),
-                        responseResolve.getPayload().getResolvedResources().get(0).getCompactIdentifierResolvedUrl());
-                log.error(errorMessage);
-                return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+                return new RedirectView(location);
             }
+            throw new FailedResolutionException(String.format("Zero resources were found for %s",
+                    responseResolve.getPayload().getParsedCompactIdentifier().getRawRequest()));
         }
-        return new ResponseEntity<>(responseResolve.getErrorMessage(), responseResolve.getHttpStatus());
+        throw new FailedResolutionException(responseResolve.getErrorMessage());
+//        return new ResponseEntity<>(responseResolve.getErrorMessage(), responseResolve.getHttpStatus());
     }
 }

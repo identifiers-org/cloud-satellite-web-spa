@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,13 +43,15 @@ public class ResolutionApiController {
     AsyncMatomoCidResolutionService matomoService;
 
     @RequestMapping(value = "/{resolutionRequest}/**", method = RequestMethod.GET)
-    public ResponseEntity<?> resolveRawCompactIdentifier(@PathVariable String resolutionRequest, HttpServletRequest request) {
+    public RedirectView resolveRawCompactIdentifier(@PathVariable String resolutionRequest, HttpServletRequest request) {
         // Extract the request path
         final String path =
                 request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
-        log.info("Resolution request, PATH '{}'", path);
 
         String rawCompactIdentifier = path.replaceFirst("/resolutionApi/", "");
+
+        log.info("Resolution request CID: '{}'", rawCompactIdentifier);
+
         ServiceResponseResolve responseResolve =
                 ApiServicesFactory.getResolverService(resolverHost, resolverPort)
                         .requestResolutionRawRequest(rawCompactIdentifier);
