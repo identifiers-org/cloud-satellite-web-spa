@@ -1,12 +1,12 @@
 import React from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie'
-import { useMatomo } from '@datapunt/matomo-tracker-react';
+// import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 
 const ErrorPage = () => {
-  const { trackPageView } = useMatomo()
-  trackPageView();
+  // const { trackPageView } = useMatomo()
+  // trackPageView(); // Will result in duplicated measurements if Spring renders this in failed resolution.
 
   let title = Cookies.get('title');
   if (title === undefined) {
