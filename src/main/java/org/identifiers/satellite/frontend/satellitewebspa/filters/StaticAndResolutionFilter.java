@@ -37,18 +37,19 @@ public class StaticAndResolutionFilter implements Filter {
         log.debug("Running my custom filter");
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         String path = req.getRequestURI().substring(req.getContextPath().length());
+        log.debug("WELP {}", path);
         if (doesResourceExists(path)) {
-            log.debug(String.format("Delegate to default - path '%s'", path));
+            log.debug("Delegate to default - path '{}'", path);
             filterChain.doFilter(servletRequest, servletResponse); // Goes to default servlet.
-        } else if ((path.startsWith("/resolve"))) {
-            log.debug(String.format("Delegate to index.html (SPA routing) - path '%s'", path));
+        } else if ((path.startsWith("/resolve")) || (path.startsWith("/protectedLanding"))) {
+            log.debug("Delegate to index.html (SPA routing) - path '{}'", path);
             servletRequest.getRequestDispatcher("/index.html").forward(servletRequest, servletResponse);
         } else if ((path.startsWith("/devopsApi")) || (path.startsWith("/healthApi"))) {
-            log.debug(String.format("Delegate to my handlers - path '%s'", path));
+            log.debug("Delegate to my handlers - path '{}'", path);
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             String newPath = "/resolutionApi" + path;
-            log.debug(String.format("Sending the request to the resolution API - path '%s'", newPath));
+            log.debug("Sending the request to the resolution API - path '{}'", newPath);
             servletRequest.getRequestDispatcher(newPath).forward(servletRequest, servletResponse); // Goes to your
             // controller.
         }
