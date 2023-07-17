@@ -29,7 +29,7 @@ const ErrorPage = () => {
   return (
     <div>
       <h1><i className="icon icon-common icon-bomb"></i> {title}</h1>
-      { message.split("; ").map( (s) => <p> {s} </p> ) }
+      { message.split("; ").map( (s, i) => <p key={i}> {s} </p> ) }
       <p><Link to="/">Go home</Link></p>
     </div>
   )

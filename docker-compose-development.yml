@@ -24,7 +24,7 @@ services:
             - HQ_WS_REGISTRY_CONFIG_RDBMS_PASSWORD=devpassword
             - HQ_WS_REGISTRY_CONFIG_BACKEND_SERVICE_MIRID_CONTROLLER_HOST=hqmiridcontroller
             - HQ_WS_REGISTRY_CONFIG_BACKEND_SERVICE_MIRID_CONTROLLER_PORT=8181
-            - HQ_WS_REGISTRY_CONFIG_APPLICATION_ACTIVE_PROFILE=development,authdisabled
+            - HQ_WS_REGISTRY_CONFIG_APPLICATION_ACTIVE_PROFILE=authdisabled
         ports:
             - "8180:8180"
         networks:
@@ -40,7 +40,7 @@ services:
             - HQ_WS_MIRID_CONTROLLER_CONFIG_RDBMS_USERNAME=devusername
             - HQ_WS_MIRID_CONTROLLER_CONFIG_RDBMS_PASSWORD:devpassword
             - HQ_WS_MIRID_CONTROLLER_CONFIG_REDIS_HOST=redis
-            - HQ_WS_MIRID_CONTROLLER_CONFIG_APPLICATION_ACTIVE_PROFILE=development,authdisabled
+            - HQ_WS_MIRID_CONTROLLER_CONFIG_APPLICATION_ACTIVE_PROFILE=authdisabled
         ports:
             - "8181:8181"
         networks:
@@ -66,9 +66,8 @@ services:
             - WS_RESOLVER_CONFIG_RESOURCE_RECOMMENDER_HOST=recommender
             - WS_RESOLVER_CONFIG_RESOURCE_RECOMMENDER_PORT=8083
             - WS_RESOLVER_CONFIG_REGISTRY_RESOLUTION_DATASET_ENDPOINT=http://hqregistry:8180/resolutionApi/getResolverDataset
-            - WS_RESOLVER_CONFIG_APPLICATION_ACTIVE_PROFILE=development
+            - WS_RESOLVER_CONFIG_APPLICATION_ACTIVE_PROFILE=authdisabled
             - WS_RESOLVER_JVM_MEMORY_MAX=1024m
-            - WS_RESOLVER_CONFIG_BACKEND_SERVICE_JWT_ISSUERURI=https://auth.identifiers.org/auth/realms/idorg
         ports:
             - "8080:8080"
         networks:
@@ -83,6 +82,7 @@ services:
         environment:
             - WS_RESOURCE_RECOMMENDER_JVM_MEMORY_MAX=1024m
             - WS_RESOURCE_RECOMMENDER_CONFIG_BACKEND_SERVICE_LINK_CHECKER_HOST=link-checker
+            - SPRING_PROFILES_ACTIVE=authdisabled
         ports:
             - "8083:8083"
         networks:
@@ -96,7 +96,7 @@ services:
             - WS_LINK_CHECKER_CONFIG_REDIS_HOST=redis
             - WS_LINK_CHECKER_CONFIG_BACKEND_SERVICE_RESOLVER_HOST=resolver
             - WS_LINK_CHECKER_CONFIG_DAEMON_PERIODIC_LINK_CHECK_REQUESTER_ENABLED=false
-            - spring_profiles_active=development
+            - SPRING_PROFILES_ACTIVE=authdisabled
         ports:
             - "8084:8084"
         networks:

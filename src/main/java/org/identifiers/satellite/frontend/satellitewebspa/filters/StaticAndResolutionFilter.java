@@ -37,7 +37,6 @@ public class StaticAndResolutionFilter implements Filter {
         log.debug("Running my custom filter");
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         String path = req.getRequestURI().substring(req.getContextPath().length());
-        log.debug("WELP {}", path);
         if (doesResourceExists(path)) {
             log.debug("Delegate to default - path '{}'", path);
             filterChain.doFilter(servletRequest, servletResponse); // Goes to default servlet.
@@ -51,7 +50,6 @@ public class StaticAndResolutionFilter implements Filter {
             String newPath = "/resolutionApi" + path;
             log.debug("Sending the request to the resolution API - path '{}'", newPath);
             servletRequest.getRequestDispatcher(newPath).forward(servletRequest, servletResponse); // Goes to your
-            // controller.
         }
     }
 }
