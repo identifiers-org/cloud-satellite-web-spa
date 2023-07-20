@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.identifiers.satellite.frontend</groupId>
     <artifactId>satellite-webspa</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
     <name>satellite-webspa</name>
     <description>Identifiers.org Satellite Resolution Services Web SPA</description>
 
