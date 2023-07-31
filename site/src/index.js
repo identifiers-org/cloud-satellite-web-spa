@@ -15,11 +15,10 @@ import { querySplit } from './utils/identifiers';
 
 import { MatomoProvider, createInstance } from '@datapunt/matomo-tracker-react';
 
-
 //import '../node_modules/EBI-Icon-fonts/fonts.css';
 //import '../node_modules/ebi-framework/css/ebi-lite.css';
 //import '../node_modules/ebi-framework/js/script.js';
-//
+
 //import './styles/styles.scss';
 
 // ==================== APP Initialization ====================

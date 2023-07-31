@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useAsyncError, useRouteError } from 'react-router-dom';
 import Cookies from 'js-cookie'
 // import { useMatomo } from '@datapunt/matomo-tracker-react';
 
 
-const ErrorPage = () => {
+const ErrorPage = ({defaultMessage}) => {
   // const { trackPageView } = useMatomo()
   // trackPageView(); // Will result in duplicated measurements if Spring renders this in failed resolution.
 
@@ -18,13 +18,16 @@ const ErrorPage = () => {
 
   let message = Cookies.get('message');
   if (message === undefined) {
-    message = "Perhaps you are using an invalid URL";
+    const err = useAsyncError();
+    if (!err) message = defaultMessage || "Perhaps you are using an invalid URL";
+    else if (typeof err == "string") message = err;
+    else message = err.message;
   } else {
     message = message.replaceAll("+", " ");
     Cookies.remove('message');
   }
 
-  window.history.replaceState({}, '', location.pathname)
+  // window.history.replaceState({}, '', location.pathname)
 
   return (
     <div>

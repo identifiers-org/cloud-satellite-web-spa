@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { NavLink as BaseNavLink } from 'react-router-dom';
 

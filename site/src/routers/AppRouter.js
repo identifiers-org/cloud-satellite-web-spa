@@ -1,47 +1,62 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
+import { createBrowserRouter, defer, Outlet, RouterProvider } from 'react-router-dom';
 
 import HomePage from '../components/pages/HomePage';
 // import NotFoundPage from '../components/pages/NotFoundPage';
 import ResolvePage from '../components/pages/ResolvePage';
 import ErrorPage from "../components/pages/ErrorPage";
 import ProtectedLandingPage from "../components/pages/ProtectedLandingPage";
-
-const identifiersLogoImage = new URL('../assets/identifiers_logo.png', import.meta.url);
-const ebinavBgImage = new URL('../assets/ebinav_bg.svg', import.meta.url);
-
-
-const identifiersLogo = (
-  <>
-    <img src={identifiersLogoImage} className=""/>
-    <div className="logo-text">
-      <h1>Identifiers.org</h1>
-      <p className="logo-subtitle">Resolution service</p>
-    </div>
-  </>
-);
+import DeactivatedLandingPage from "../components/pages/DeactivatedLanding";
+import { config } from "../config/Config";
+import AppLayout from "./AppRouterLayout";
 
 
-const AppRouter = () => (
-  <BrowserRouter>
-    <>
-      <Header />
-      <div className="container mt-5">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/resolve" element={<ResolvePage />} />
-          <Route path="/protectedLanding/*" element={<ProtectedLandingPage />} />
-          <Route path="*" element={<ErrorPage />} />
-          {/*<Route path="*" element={<NotFoundPage />} />*/}
-        </Routes>
-      </div>
-      <Footer />
-    </>
-  </BrowserRouter>
-);
+const cidLoader = ({ params }) => {
+  const cid = params["*"]
+  if (!cid) return defer({resolverData: Promise.reject("Compact identifier is empty")});
 
+  const resolverQueryUrl = new URL("/" + cid, config.resolverApi);
+  const res = fetch(resolverQueryUrl).then(res => {
+    if (!res.ok) return Promise.reject(`Resolution failed for ${cid}`);
+    else return res.json();
+  })
 
-export default AppRouter;
+  return defer({resolverData: res});
+}
+
+const routes = [
+  {
+    //AppLayout is needed to make sure Header is inside router for the nav elements
+    element: <AppLayout />,
+    children: [
+      {
+        //Outlet element is needed to make everyone share the same error element
+        element: <Outlet/>,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <HomePage/>
+          }, {
+            path: "/resolve",
+            element: <ResolvePage/>
+          }, {
+            path: "/protectedLanding/*",
+            element: <ProtectedLandingPage/>,
+            loader: cidLoader
+          }, {
+            path: "/deactivatedLanding/*",
+            element: <DeactivatedLandingPage />,
+            loader: cidLoader
+          }, {
+            path: "*",
+            element: <ErrorPage />
+          }
+        ]
+      }
+    ]
+  }
+]
+
+const router = createBrowserRouter(routes);
+export default () => <RouterProvider router={router} />;
