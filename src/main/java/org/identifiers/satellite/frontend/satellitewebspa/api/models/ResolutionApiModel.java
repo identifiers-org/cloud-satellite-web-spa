@@ -29,7 +29,8 @@ public class ResolutionApiModel {
                 if (responseResolve.getPayload().getParsedCompactIdentifier().isDeprecatedNamespace()) {
                     // The namespace is deprecated, we just choose among its resources, just in case they're all not deprecated, we sort them
                     responseResolve.getPayload().getResolvedResources().sort((o1, o2) -> Integer.compare(o2.getRecommendation().getRecommendationIndex(), o1.getRecommendation().getRecommendationIndex()));
-                    if (responseResolve.getPayload().getParsedCompactIdentifier().isRenderDeprecatedLanding()) {
+                    if (responseResolve.getPayload().getParsedCompactIdentifier().isRenderDeprecatedLanding() ||
+                            responseResolve.getPayload().getResolvedResources().get(0).isRenderDeprecatedLanding()) {
                         location = "/deactivatedLanding/" + responseResolve.getPayload().getParsedCompactIdentifier().getRawRequest();
                         log.info("Resolving to deactivated landing");
                     } else {
