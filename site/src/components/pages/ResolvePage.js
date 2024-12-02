@@ -54,17 +54,20 @@ class ResolvePage extends React.Component {
 
 
   handleCopyToClipboard = (value) => {
-    const dummy = document.createElement('input');
-    document.body.appendChild(dummy);
-    dummy.setAttribute('value', value);
-    dummy.select();
-    document.execCommand('copy');
-    document.body.removeChild(dummy);
-
-    swalToast.fire({
-      type: 'success',
-      title: 'Copied to clipboard'
-    })
+    navigator.clipboard.writeText(value).then(
+      () => {
+        swalToast.fire({
+          icon: 'success',
+          title: 'Copied to clipboard'
+        })
+      },
+      (err) => {
+        swalToast.fire({
+          icon: 'error',
+          title: `Failed to copy to clipboard: ${err}`
+        })
+      }
+    );
   }
 
 
@@ -78,7 +81,6 @@ class ResolvePage extends React.Component {
     const compactIdentifier = `${config.resolverHardcodedUrl}/${query}`;
 
     return (
-      <>
       <div className="row mb-5">
         <div className="col">
           {
@@ -91,34 +93,33 @@ class ResolvePage extends React.Component {
                     <h4 className="mb-0 text-success text-ellipsis">
                       {compactIdentifier}
                     </h4>
-                    {
-                      document.queryCommandSupported('copy') && (
-                        <button
-                          className="btn btn-sm btn-primary-outline"
-                          onClick={() => {handleCopyToClipboard(compactIdentifier)}}
-                        >
-                          <i className="icon icon-common icon-copy size-150" />
-                        </button>
-                      )
-                    }
+                      <button
+                        className="btn btn-sm btn-primary-outline"
+                        onClick={() => {handleCopyToClipboard(compactIdentifier)}}
+                      >
+                        <i className="icon icon-common icon-copy size-150" />
+                      </button>
                   </div>
                 </div>
                 <div className="row">
                   <div className="col">
                     <h4 className="mb-0">
-                      Compact Identifier:&nbsp;
-                      <strong className="text-primary font-italic text-ellipsis">{query}</strong>
+                      <div className="inline-block border border-right-0 p-1 pr-2" style={{backgroundColor: "#00000008"}}>
+                        Compact Identifier
+                      </div>
+                      <div className="inline-block border-bottom  py-1 px-2">
+                        <strong className="text-primary font-italic">{query}</strong>
+                      </div>
                     </h4>
                   </div>
                 </div>
 
-                <ResourceList />
+                <ResourceList/>
               </>
             )
           }
         </div>
       </div>
-      </>
     );
   }
 }

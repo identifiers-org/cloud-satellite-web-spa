@@ -39,5 +39,7 @@ export const config = {
   // Schema.org metadata endpoints.
   schemaOrgPlatformEndpoint: 'schemaOrgApi/getMetadataForPlatform',
   schemaOrgNamespaceEndpoint: 'schemaOrgApi/getMetadataForNamespace',
-  schemaOrgNamespacePrefixEndpoint: 'schemaOrgApi/getMetadataForNamespacePrefix'
+  schemaOrgNamespacePrefixEndpoint: 'schemaOrgApi/getMetadataForNamespacePrefix',
+
+  ebisearchDomainEndpoint:
 };

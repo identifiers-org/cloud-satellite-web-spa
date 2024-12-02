@@ -34,12 +34,10 @@ deploy: clean container_production_push
 
 force_npm_reinstall:
 	@echo "<===|DEVOPS|===> [CLEAN] Deleting npm updated flag"
-	@rm npm_install
 
 npm_install:
 	@echo "<===|DEVOPS|===> [DEVELOPMENT] Installing npm modules"
 	@docker run --user node --network=$(network_docker_name) -p 9091:9091 -p 50001:50001 -v $(shell pwd)/${dev_site_root_folder}:/home/site -it node /bin/bash -c "npm --prefix /home/site install; npm rebuild"
-	@touch npm_install
 
 development_env_up: development_env_backend_up npm_install
 	@echo "<===|DEVOPS|===> [DEVELOPMENT] Launch development environment"
@@ -49,11 +47,11 @@ development_env_down: development_env_backend_down
 
 development_env_backend_up:
 	@echo "<===|DEVOPS|===> [ENVIRONMENT] Bringing backend UP"
-	@docker-compose -f $(docker_compose_development_file) up -d
+	@docker compose -f $(docker_compose_development_file) up -d
 
 development_env_backend_down:
 	@echo "<===|DEVOPS|===> [ENVIRONMENT] Bringing backend DOWN"
-	@docker-compose -f $(docker_compose_development_file) down
+	@docker compose -f $(docker_compose_development_file) down
 
 development_run_tests: development_env_up
 	@echo "<===|DEVOPS|===> [TESTS] Running Unit Tests"
@@ -87,6 +85,7 @@ clean:
 	@echo "<===|DEVOPS|===> [CLEAN] Housekeeping"
 	@rm -rf ${folder_site_dist}
 	@rm -rf ${dev_site_root_folder}/node_modules
+	@rm -rf ${dev_site_root_folder}/.parcel-cache
 	@rm -rf ${folder_spring_boot_static}/*
 	@rm -f npm_install	development_env_backend_up development_env_backend_down development_env_up development_env_down
 
