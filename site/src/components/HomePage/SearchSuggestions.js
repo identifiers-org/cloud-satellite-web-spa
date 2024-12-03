@@ -105,8 +105,10 @@ class SearchSuggestions extends React.Component {
                               className={`mb-0 ml-2 ${selectedSearchSuggestion === index ? 'text-white' : ''} text-ellipsis`}
                             >
                               {result.name}
+                              <span className={`${selectedSearchSuggestion === index ? 'text-white' : 'text-muted'} small ml-1 ml-sm-2`}>
+                                <span className='d-none d-sm-inline'>Sample ID:</span> {result.sampleId}
+                              </span>
                             </ResourceNameTag>
-
                           </a>
                         </div>
                         <div className="col col-1">

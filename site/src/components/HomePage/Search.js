@@ -58,19 +58,19 @@ class Search extends React.Component {
 
     await getNamespacesFromRegistry(prefixEffectiveValue);
 
-    this.setState({
-      namespaceList: this.props.namespaceList.sort((a, b) => {
-        if (a.prefix.startsWith(prefixEffectiveValue) && !b.prefix.startsWith(prefixEffectiveValue)) {
-          return -1;
-        }
+    const namespaceList = this.props.namespaceList.sort((a, b) => {
+      if (a.prefix.startsWith(prefixEffectiveValue) && !b.prefix.startsWith(prefixEffectiveValue)) {
+        return -1;
+      }
 
-        if (!a.prefix.startsWith(prefixEffectiveValue) && b.prefix.startsWith(prefixEffectiveValue)) {
-          return 1;
-        }
+      if (!a.prefix.startsWith(prefixEffectiveValue) && b.prefix.startsWith(prefixEffectiveValue)) {
+        return 1;
+      }
 
-        return a.prefix - b.prefix;
-      }).slice(0, suggestionListSize)
-    });
+      return a.prefix - b.prefix;
+    }).slice(0, suggestionListSize)
+    namespaceList.sort((n1, n2) => n1.prefix.length - n2.prefix.length);
+    this.setState({ namespaceList });
   }
 
   handleFocusShowSuggestions = () => {
@@ -99,8 +99,8 @@ class Search extends React.Component {
     const { updateNamespaceList } = this;
 
     this.setState({
-      query: this.search.value,
-      queryParts: querySplit(this.search.value)
+      query: this.search.current.value,
+      queryParts: querySplit(this.search.current.value)
     }, () => {
       updateNamespaceList();
     });
@@ -200,6 +200,11 @@ class Search extends React.Component {
     window.location.href = `${config.resolverHardcodedUrl}/${queryParts.prefix}:${queryParts.id}`;
   }
 
+  handleExampleClick = (e) => {
+    e.preventDefault();
+    this.search.current.value = e.target.innerText;
+    this.handleChange();
+  }
 
   render() {
     const {
@@ -219,6 +224,15 @@ class Search extends React.Component {
     return (
       <form onSubmit={handleSubmit}>
         <div className="form-group">
+          <small className="form-text text-muted ml-1">
+            Examples:
+              <a onClick={this.handleExampleClick} className='ml-1'>
+                uniprot:P12345
+              </a>,
+              <a onClick={this.handleExampleClick} className='ml-1'>
+                pdb:2gc4
+              </a>
+          </small>
           <div className="input-group">
             <input
               autoFocus={!isSmallScreen()}
@@ -228,7 +242,7 @@ class Search extends React.Component {
               onKeyDown={handleKeyDown}
               onFocus={handleFocusShowSuggestions}
               placeholder={placeholderCaption}
-              ref={input => this.search = input}
+              ref={this.search}
               value={query}
             />
             <div className="input-group-append">

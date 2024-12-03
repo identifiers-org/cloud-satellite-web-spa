@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { swalToast } from '../../utils/swalDialogs';
 
 import { evaluateSearch } from '../../utils/identifiers';
 
@@ -8,12 +9,32 @@ class SearchEvaluator extends React.Component {
   constructor(props) {
     super(props);
   }
-
+  copyToClipboard = (text, ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    navigator.clipboard.writeText(text).then(
+      () => {
+        swalToast.fire({
+          icon: 'success',
+          title: 'Copied to clipboard'
+        })
+      },
+      (err) => {
+        swalToast.fire({
+          icon: 'error',
+          title: `Failed to copy to clipboard: ${err}`
+        })
+      }
+    );
+  }
 
   render() {
     const { config, namespaceList, queryParts } = this.props;
 
     const evaluation = evaluateSearch(queryParts, namespaceList, config.enableResourcePrediction);
+
+    const idorgURI = queryParts.id && queryParts.prefix && evaluation === 'ok' ?
+      `${config.resolverHardcodedUrl}/${queryParts.prefix}:${queryParts.id}` : null
 
     return (
       <>
@@ -117,6 +138,18 @@ class SearchEvaluator extends React.Component {
                     <td className="w-25 p-0 font-weight-light font-italic text-muted"><small>Local id:</small></td>
                     <td className="p-0 text-block"><small>{queryParts.id || 'empty'}</small></td>
                   </tr>
+                  { idorgURI &&
+                    <tr>
+                      <td className="w-25 p-0 font-weight-light font-italic text-muted"><small>URI:</small></td>
+                      <td className="p-0 text-block">
+                        <small><a href={idorgURI}>{idorgURI}</a></small>
+                        <a className='text-muted ml-1' title='copy to clipboard'
+                          onClick={(ev) => this.copyToClipboard(idorgURI, ev)}>
+                          <i className="icon icon-common icon-copy"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  }
                 </tbody>
               </table>
             </div>
