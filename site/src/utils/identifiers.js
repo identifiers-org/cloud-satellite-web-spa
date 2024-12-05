@@ -2,16 +2,25 @@
 // evaluateSearch: evaluates the correctness of a search query. Returns a result ('ok', 'warn', 'fail') and
 // a description message.
 //
-export const evaluateSearch = function (queryParts, namespaceList, enableResourcePrediction) {
+
+import SearchStates from "../components/HomePage/SearchStates";
+
+export const evaluateQuery = function (query, namespaceList) {
+  if (!query) return [SearchStates.NO_CURIE, {}];
+
+  if (query.split(/\s+/).length > 1) return [SearchStates.NO_CURIE, {}]
+
+  const queryParts = querySplit(query)
+
   // Case analysis for incorrect identifier strings:
   // 1. Empty prefix.
-  if (queryParts.prefix === '') {
-    return 'prefix_empty';
+  if (!queryParts.prefix) {
+    return [SearchStates.NO_CURIE, queryParts];
   }
 
   // 2. Non-existant prefix.
   if (namespaceList.filter(namespace => namespace.prefix === queryParts.prefixEffectiveValue).length === 0) {
-    return 'prefix_unknown';
+    return [SearchStates.INVALID_PREFIX, queryParts];
   }
 
   // Below here, we are supposed to have a namespace.
@@ -19,44 +28,31 @@ export const evaluateSearch = function (queryParts, namespaceList, enableResourc
 
   // 3. Empty local id.
   if (queryParts.id === '') {
-    return 'id_empty';
-  }
-
-  // 4. Non-conforming local id.
-  const regex = new RegExp(currentNamespace.pattern);
-  const matches = currentNamespace.namespaceEmbeddedInLui ? queryParts.idWithEmbeddedPrefix.match(regex) : queryParts.id.match(regex);
-
-  if (!matches) {
-    return 'id_bad';
-  }
-
-  // 5. Resource specified when resource prediction is disabled.
-  if (queryParts.resource !== '' && !enableResourcePrediction) {
-    return 'resource_not_empty';
-  }
-
-  // 6. Non-existant resource.
-  if (queryParts.resource !== '') {
-    const currentResource = currentNamespace.resources ?
-      currentNamespace.resources.filter(resource => resource.providerCode === queryParts.resource)[0]
-      :
-      undefined;
-
-    if (!currentResource) {
-      return 'resource_bad';
+    if (query.endsWith(':')) {
+      return [SearchStates.PREFIX_WITH_COLON, queryParts];
+    } else {
+      return [SearchStates.PREFIX_ONLY, queryParts];
     }
   }
 
+  // 4. Non-conforming local id.
+  const regex = new RegExp(currentNamespace.lui_pattern);
+  const matches = queryParts.idWithEmbeddedPrefix.match(regex) || queryParts.id.match(regex);
+
+  if (!matches) {
+    return [SearchStates.INVALID_LOCAL_ID, queryParts];
+  }
+
   // 99. All ok.
-  return 'ok';
+  return [SearchStates.VALID_CURIE, queryParts];
 }
 
 
-//
-// querySplit: splits a query according to the identifiers.org algorithm.
-// For the future: Implement FDA
-//
+/**
+ * querySplit: splits a query according to a simplified parsing algorithm.
+  */
 export const querySplit = function (query) {
+  if (!query) return {};
   const [prefixSide, ...idSide] = query.split(':');
   const prefixParts = prefixSide.split('/');
   let resource = '';

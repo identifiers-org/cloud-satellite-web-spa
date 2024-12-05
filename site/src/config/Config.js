@@ -38,6 +38,9 @@ export const config = {
 
   // Schema.org metadata endpoints.
   schemaOrgPlatformEndpoint: 'schemaOrgApi/getMetadataForPlatform',
-  schemaOrgNamespaceEndpoint: 'schemaOrgApi/getMetadataForNamespace',
-  schemaOrgNamespacePrefixEndpoint: 'schemaOrgApi/getMetadataForNamespacePrefix'
+  schemaOrgNamespacePrefixEndpoint: 'schemaOrgApi/getMetadataForNamespacePrefix',
+
+  ebiSearchDomainEndpoint: 'http://wp-np3-8d:8090/ebisearch/ws/rest/identifiers_registry',
+  ebiSearchResponseSize: 100,
+  ebiSearchRescoreWhenSingleIdDetected: true,
 };

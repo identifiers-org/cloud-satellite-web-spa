@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { config } from '../../config/Config'
 
 // Components.
 import Search from '../HomePage/Search';
@@ -8,6 +8,7 @@ import Search from '../HomePage/Search';
 import { isSmallScreen, isIpadScreen } from '../../utils/responsive';
 
 import { useMatomo } from '@datapunt/matomo-tracker-react';
+import { useNavigate } from "react-router-dom";
 
 
 class HomePage extends React.Component {
@@ -21,11 +22,10 @@ class HomePage extends React.Component {
   }
 
   render() {
-    const { config } = this.props;
-
     const boxPadding = isSmallScreen() || isIpadScreen() ? 'p-3' : 'p-5';
     const searchBarPadding = isSmallScreen() ? 'p-1' : 'px-5';
     const topSpacer = isSmallScreen() ? '' : 'spacer-8';
+    const { navigate } = this.props;
 
     return (
       <div className={`row border ${topSpacer}`}>
@@ -51,10 +51,9 @@ class HomePage extends React.Component {
           <div className={`row justify-content-center mt-2 ${searchBarPadding}`}>
             <div className="col col-lg-7 col-xl-12">
               <Search
-                button={true}
                 buttonCaption={<span><i className="icon icon-common icon-search mr-1" /> Resolve</span>}
-                floatingGoToButton={false}
                 placeholderCaption="Enter an identifier to resolve"
+                onButtonClick={(query) => navigate(`resolve?query=${query}`)}
               />
             </div>
           </div>
@@ -64,15 +63,8 @@ class HomePage extends React.Component {
   }
 }
 
-//
-// Redux mappings.
-//
-const mapStateToProps = (state) => ({
-  config: state.config
-});
-
-const ConnectedHomePage = connect(mapStateToProps)(HomePage)
 export default (props) => {
   const matomo = useMatomo();
-  return <ConnectedHomePage  {...props} matomo={matomo} />
+  const navigate = useNavigate();
+  return <HomePage  {...props} matomo={matomo} navigate={navigate} />
 };
