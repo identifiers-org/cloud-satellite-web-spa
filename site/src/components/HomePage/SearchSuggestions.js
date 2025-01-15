@@ -289,7 +289,7 @@ class SearchSuggestions extends React.Component {
                             title='See namespace page'
                             type="button"
                           >
-                            <i className="icon icon-common icon-external-link-alt"/>
+                            <i className="icon icon-common icon-external-link-alt ml-1"/>
                           </button>
                         </div>
                       </div>

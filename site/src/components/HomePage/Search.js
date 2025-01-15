@@ -131,47 +131,50 @@ class Search extends React.Component {
             Examples:{' '}
             {
               this.exampleCuries.map(example => (
-                <a role='suggestion' key={example} tabIndex='0'
-                   onClick={this.handleExampleClick}
-                   onKeyDown={this.handleExampleClick}
-                   className='text-primary text-decoration-none mr-2'>
-                  {example}
-                </a>
+                  <a role='suggestion' key={example} tabIndex='0'
+                     onClick={this.handleExampleClick}
+                     onKeyDown={this.handleExampleClick}
+                     className='text-primary text-decoration-none mr-2'>
+                    {example}
+                  </a>
               ))
             }
           </small>
           <div className="input-group">
             <input
-              role="searchbox"
-              spellCheck={false}
-              className="form-control search-input"
-              onChange={this.handleChange}
-              onKeyDown={this.handleKeyDown}
-              onFocus={this.handleFocusShowSuggestions}
-              placeholder={placeholderCaption}
-              ref={this.search}
-              value={query}
+                role="searchbox"
+                spellCheck={false}
+                className="form-control search-input"
+                onChange={this.handleChange}
+                onKeyDown={this.handleKeyDown}
+                onFocus={this.handleFocusShowSuggestions}
+                placeholder={placeholderCaption}
+                ref={this.search}
+                value={query}
             />
             <div className="input-group-append">
               <button
-                className="btn btn-primary search-button"
-                onFocus={this.handleFocusShowSuggestions}
-                onClick={this.handleButtonClick}
-                disabled={!isSearchValid}
+                  className="btn btn-primary search-button"
+                  onFocus={this.handleFocusShowSuggestions}
+                  onClick={this.handleButtonClick}
+                  disabled={!isSearchValid}
               >
                 {buttonCaption}
               </button>
             </div>
-            { config.showSearchSuggestions && showSuggestions &&
-              <SearchSuggestions
-                setSearchState={this.setSearchState}
-                closeSuggestions={this.closeSuggestions}
-                setSuggestion={this.handleSuggestion}
-                suggestionListRef={this.suggestionListRef}
-                query={query}
-              />
+            {config.showSearchSuggestions && showSuggestions &&
+                <SearchSuggestions
+                    setSearchState={this.setSearchState}
+                    closeSuggestions={this.closeSuggestions}
+                    setSuggestion={this.handleSuggestion}
+                    suggestionListRef={this.suggestionListRef}
+                    query={query}
+                />
             }
           </div>
+          <a className="text-muted text-sm ml-1" href="https://www.ebi.ac.uk/ebisearch">
+            powered by EBI Search
+          </a>
         </div>
       </form>
     )
